@@ -22,6 +22,12 @@ repos=$(gh repo list $SOURCE_ORG --limit 500 --json name --jq '.[].name')
 
 # Fork each repository to the target organization
 for repo in $repos; do
+    echo "Checking if $repo already exists in $TARGET_ORG..."
+    if gh repo view "$TARGET_ORG/$repo" &>/dev/null; then
+        echo "$repo already exists in $TARGET_ORG. Skipping fork."
+        continue
+    fi
+
     echo "Forking $repo..."
     gh repo fork "$SOURCE_ORG/$repo" --org $TARGET_ORG --clone=false
     if [ $? -eq 0 ]; then
